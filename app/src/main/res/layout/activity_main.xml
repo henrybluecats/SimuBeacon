@@ -11,121 +11,105 @@
                   android:orientation="vertical"
                   android:layout_height="match_parent">
         <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content" android:id="@+id/ll_manual"
+                        android:layout_marginTop="16dp" android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp">
             <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="Toggle to broadcast:"
-                    android:layout_alignParentStart="true"
-                    android:gravity="center_vertical"
-                    android:layout_centerVertical="true"
-            />
-            <ToggleButton
-                    android:layout_width="wrap_content"
+                    android:text="GPS Lattitide(float, -90.0~90.0)"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/tv_lattitude"/>
+            <EditText
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/tb_running"
+                    android:inputType="numberDecimal"
+                    android:ems="10"
+                    android:id="@+id/et_latitude" android:layout_below="@+id/tv_lattitude"
+                    android:enabled="false"/>
+            <CheckBox
+                    android:text="Use GPS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/cb_lattitude"
+                    android:layout_below="@+id/tv_lattitude"
                     android:layout_alignParentRight="true"
-            />
-        </RelativeLayout>
-        <LinearLayout android:layout_width="match_parent"
-                      android:orientation="vertical"
-                      android:layout_height="wrap_content">
+                    android:layout_alignBaseline="@+id/et_latitude" android:checked="true"/>
             <TextView
+                    android:text="GPS Longitude(float, -180.0~180.0)"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Proximity UUID"
-            />
+                    android:layout_height="wrap_content" android:id="@+id/tv_longitude"
+                    android:layout_below="@+id/et_latitude"/>
             <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/et_uuid"
-            />
-        </LinearLayout>
-        <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Major: "
-                    android:id="@+id/tv_major"
-                    android:layout_centerVertical="true"
-            />
-            <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/et_major"
-                    android:maxLength="5"
                     android:inputType="numberDecimal"
-                    android:layout_toRightOf="@id/tv_major"
-            />
-        </RelativeLayout>
-        <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                    android:ems="10"
+                    android:id="@+id/et_longitude" android:layout_below="@+id/tv_longitude"
+                    android:enabled="false"/>
+            <CheckBox
+                    android:text="Use GPS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/cb_longitude"
+                    android:layout_alignBaseline="@+id/et_longitude"
+                    android:layout_alignParentRight="true" android:checked="true"/>
             <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Minor: "
-                    android:id="@+id/tv_minor"
-                    android:layout_centerVertical="true"
-            />
+                    android:text="GPS Horizontal Error(float in meters)"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/tv_horizontal"
+                    android:layout_below="@+id/et_longitude"/>
             <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/et_minor"
-                    android:maxLength="5"
                     android:inputType="numberDecimal"
-                    android:layout_toRightOf="@id/tv_minor"
-            />
-        </RelativeLayout>
-        <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                    android:ems="10"
+                    android:id="@+id/et_horizontal" android:layout_below="@+id/tv_horizontal"
+                    android:enabled="false"/>
             <CheckBox
+                    android:text="Use GPS"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/cb_name"
-                    android:enabled="false"
-                    android:layout_centerVertical="true"
-                    android:text="BC Beacon"
-            />
-
+                    android:layout_height="wrap_content" android:id="@+id/cb_hori"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignBaseline="@+id/et_horizontal" android:checked="true"/>
+            <TextView
+                    android:text="GPS Fix time (Unix Epoch, UTC time in seconds)"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/tv_time"
+                    android:layout_below="@+id/et_horizontal"/>
             <EditText
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_toRightOf="@+id/cb_name"
-                    android:id="@+id/et_name"
-                    android:text="BC Beacon"
-                    android:maxLength="16"
-                    android:enabled="false"
-            />
-        </RelativeLayout>
-        <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:ems="10"
+                    android:id="@+id/et_time" android:layout_below="@+id/tv_time"
+                    android:enabled="false"/>
             <CheckBox
+                    android:text="Use GPS"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/cb_bluecats"
-                    android:enabled="false"
-                    android:text="BlueCats Service"
-            />
+                    android:layout_height="wrap_content" android:id="@+id/cb_time"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignBaseline="@+id/et_time" android:checked="true"/>
         </RelativeLayout>
         <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content" android:id="@+id/rl_btn">
             <ProgressBar
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/pb"
-                    android:visibility="gone"
-            />
+                    android:visibility="visible"
+                    android:layout_alignBottom="@+id/btn_push"/>
+            <Button
+                    android:text="Push to broadcast"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/btn_push"
+                    android:layout_centerHorizontal="true"
+                    android:layout_margin="8dp"/>
+            <TextView
+                    android:text="GPS is running"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/tv_gps_status"
+                    android:layout_below="@+id/btn_push"/>
             <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/tv_status"
-                    android:text="status"
-                    android:gravity="center"
-                    android:visibility="gone"
-                    android:layout_toRightOf="@+id/pb"
-                    android:layout_centerVertical="true"
-            />
+                    android:layout_height="wrap_content" android:id="@+id/tv_status"
+                    android:layout_below="@+id/tv_gps_status"/>
         </RelativeLayout>
 
     </LinearLayout>

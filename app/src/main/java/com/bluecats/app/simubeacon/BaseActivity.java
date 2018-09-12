@@ -35,13 +35,12 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 
     protected boolean permissionGranted() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     protected void requestPermission() {
         ActivityCompat.requestPermissions(this,
-                new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                new String[] { Manifest.permission.ACCESS_FINE_LOCATION},
                 REQUEST_CODE_LOCATION_PERMISSIONS);
 
     }

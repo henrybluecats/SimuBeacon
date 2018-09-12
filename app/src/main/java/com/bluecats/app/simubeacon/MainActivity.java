@@ -8,72 +8,105 @@ import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.ParcelUuid;
-import android.support.annotation.NonNull;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnTouch;
 
 public class MainActivity extends BaseActivity {
 
 
     private static final String TAG = "MainActivity";
-    @BindView(R.id.et_name)
-    EditText et_name;
 
-    @BindView(R.id.cb_name)
-    CheckBox cb_name;
+    @BindView(R.id.tv_lattitude)
+    TextView tv_latitude;
+    @BindView(R.id.tv_longitude)
+    TextView tv_longitude;
+    @BindView(R.id.tv_horizontal)
+    TextView tv_horizontal;
+    @BindView(R.id.tv_time)
+    TextView tv_time;
 
-    @BindView(R.id.cb_bluecats)
-    CheckBox cb_bluecats;
+    @BindView(R.id.et_latitude)
+    EditText et_latitude;
+    @BindView(R.id.et_longitude)
+    EditText et_longitude;
+    @BindView(R.id.et_horizontal)
+    EditText et_horizontal;
+    @BindView(R.id.et_time)
+    EditText et_time;
 
-    @BindView(R.id.tb_running)
-    ToggleButton tb_running;
+    @BindView(R.id.cb_lattitude)
+    CheckBox cb_latitude;
+    @BindView(R.id.cb_longitude)
+    CheckBox cb_longitude;
+    @BindView(R.id.cb_hori)
+    CheckBox cb_hori;
+    @BindView(R.id.cb_time)
+    CheckBox cb_time;
 
     @BindView(R.id.tv_status)
     TextView tv_status;
-
-    @BindView(R.id.pb)
-            View pb;
-
-    @BindView(R.id.et_uuid) EditText et_uuid;
-    @BindView(R.id.et_major) EditText et_major;
-    @BindView(R.id.et_minor) EditText et_minor;
 
     BluetoothAdapter mBluetoothAdapter;
 
     BluetoothLeAdvertiser mBluetoothLeAdvertiser;
 
-    @OnClick(R.id.tb_running)
-    void onClick() {
-        if (tb_running.isChecked()) {
+    LocationManager mLocationManager;
+
+    Location mLastKnownLocation;
+
+    @OnTouch(R.id.btn_push)
+    public boolean onTouch(MotionEvent me) {
+        if (me.getAction() == MotionEvent.ACTION_DOWN) {
             startBroadcast();
-        } else {
+        } else if (me.getAction() == MotionEvent.ACTION_UP) {
             stopBroadcast();
         }
-        updateUI();
+        return true;
     }
+
+    @OnCheckedChanged({R.id.cb_lattitude, R.id.cb_longitude, R.id.cb_hori, R.id.cb_time})
+    public void onCheckChanged(CompoundButton v, boolean checked) {
+        switch (v.getId()) {
+            case R.id.cb_lattitude: et_latitude.setEnabled(!checked); break;
+            case R.id.cb_longitude: et_longitude.setEnabled(!checked); break;
+            case R.id.cb_hori: et_horizontal.setEnabled(!checked); break;
+            case R.id.cb_time: et_time.setEnabled(!checked); break;
+        }
+    }
+//    @OnClick(R.id.tb_running)
+//    void onClick() {
+//        if (tb_running.isChecked()) {
+//            startBroadcast();
+//        } else {
+//            stopBroadcast();
+//        }
+//        updateUI();
+//    }
 
     AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-            Log.d(TAG, "onStartSuccess "+settingsInEffect.toString());
+            Log.d(TAG, "onStartSuccess " + settingsInEffect.toString());
         }
     };
 
@@ -82,12 +115,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void startBroadcast() {
-        tv_status.setVisibility(View.GONE);
-        if (mBluetoothAdapter == null) {
-            tv_status.setText("BluetoothAdapter is null");
-            tv_status.setVisibility(View.VISIBLE);
-            return;
-        }
         if (mBluetoothAdapter.isEnabled() == false) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent, REQUEST_CODE_ENABLE_BLUETOOTH);
@@ -110,7 +137,7 @@ public class MainActivity extends BaseActivity {
 
         try {
             AdvertiseData data = new AdvertiseData.Builder()
-                    .addManufacturerData(0x104, GpsDataBuilder(0x01020304, 0x01020304, 0x01020304, 0x01020304))
+                    .addManufacturerData(0x104, gpsDataBuilder())
 //                .addServiceUuid(ParcelUuid.fromString("4CEF"))
                     .build();
             mBluetoothLeAdvertiser.startAdvertising(settings, data, mAdvertiseCallback);
@@ -122,7 +149,7 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    public byte[] GpsDataBuilder(int lat, int lng, int hor, int time){
+    public byte[] gpsDataBuilder() {
         byte[] gpsdata = new byte[22];
 
         int pos = 0;
@@ -132,6 +159,40 @@ public class MainActivity extends BaseActivity {
         gpsdata[3] = 0x60; //batt
         gpsdata[4] = 0x10; //count: 16 bytes
         gpsdata[5] = 0x09; //gps type
+
+        int lat = 0x00000000;
+        int lng = 0x00000000;
+        int hor = 0xffffffff;
+        int time = 0x00000000;
+
+        if (et_latitude.getText().toString().trim().length() > 0) {
+            try {
+                lat = (int) (Double.parseDouble(et_latitude.getText().toString().trim()) * 10000000.0);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        if (et_longitude.getText().toString().trim().length() > 0) {
+            try {
+                lng = (int) (Double.parseDouble(et_longitude.getText().toString().trim()) * 10000000.0);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        if (et_horizontal.getText().toString().trim().length() > 0) {
+            try {
+                hor = (int) (Double.parseDouble(et_horizontal.getText().toString().trim()) * 1000.0);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        if (et_time.getText().toString().trim().length() > 0) {
+            try {
+                time = (int) (Long.parseLong(et_time.getText().toString().trim()));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
 
         pos = 6;
         fill(gpsdata, pos, lat);
@@ -155,6 +216,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private static String HEX = "0123456789ABCDEF";
+
     private static byte[] str2bytes(byte[] prefix, String str, int major, int minor) {
         int prefix_len = 0;
         if (prefix != null) {
@@ -170,9 +232,9 @@ public class MainActivity extends BaseActivity {
         if (TextUtils.isEmpty(str)) {
             return data;
         }
-        str = str.replace("-","").replace(" ","").replace(".", "");
+        str = str.replace("-", "").replace(" ", "").replace(".", "");
         int offset = 0;
-        for (; offset < str.length();) {
+        for (; offset < str.length(); ) {
             char one = str.charAt(offset);
             offset++;
             if (offset >= str.length()) {
@@ -180,64 +242,40 @@ public class MainActivity extends BaseActivity {
             }
             char two = str.charAt(offset);
             offset++;
-            data[pos] = (byte)((HEX.indexOf(one) << 4) | HEX.indexOf(two));
+            data[pos] = (byte) ((HEX.indexOf(one) << 4) | HEX.indexOf(two));
             pos++;
         }
         if (pos != 16) {
             pos = 16;
         }
-        int h1 = major/255;
-        int h2 = major%255;
+        int h1 = major / 255;
+        int h2 = major % 255;
         if (h1 > 255) {
             h1 = h1 % 255;
         }
-        data[pos++] = (byte)h1;
-        data[pos++] = (byte)h2;
+        data[pos++] = (byte) h1;
+        data[pos++] = (byte) h2;
 
-        h1 = minor/255;
-        h2 = minor%255;
+        h1 = minor / 255;
+        h2 = minor % 255;
         if (h1 > 255) {
             h1 = h1 % 255;
         }
 
-        data[pos++] = (byte)h1;
-        data[pos++] = (byte)h2;
+        data[pos++] = (byte) h1;
+        data[pos++] = (byte) h2;
 
-        data[pos++] = (byte)0x67;
+        data[pos++] = (byte) 0x67;
         return data;
     }
 
     private String byte2str(byte[] arr) {
         StringBuffer sb = new StringBuffer();
-        for(byte one : arr) {
+        for (byte one : arr) {
             sb.append(String.format("%02X", one));
         }
         return sb.toString();
     }
-
-    private String getUUID() {
-        return et_uuid.getText().toString();
-    }
-
-    private int getMajor(){
-        return Integer.valueOf(et_major.getText().toString());
-    }
-
-    private int getMinor() {
-        return Integer.valueOf(et_minor.getText().toString());
-    }
-
-
-    @OnClick(R.id.cb_name)
-    void click_cb_name() {
-        et_name.setEnabled(cb_name.isChecked());
-    }
-
-    @OnClick(R.id.cb_bluecats)
-    void click_cb_bluecats() {
-        Log.d(TAG, "cb_bluecats "+ cb_bluecats.isChecked());
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -248,34 +286,23 @@ public class MainActivity extends BaseActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
-        if (TextUtils.isEmpty(et_uuid.getText().toString())) {
-            et_uuid.setText("61687109-905F-4436-91F8-E602F514C96D");
-        }
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
         updateUI();
     }
 
     private void updateUI() {
-        if (tb_running.isChecked()) {
-            cb_name.setEnabled(false);
-            cb_bluecats.setEnabled(false);
-            et_name.setEnabled(false);
-            pb.setVisibility(View.VISIBLE);
-        } else {
-            cb_name.setEnabled(true);
-            cb_bluecats.setEnabled(true);
-            if (cb_name.isChecked()) {
-                et_name.setEnabled(true);
-            } else {
-                et_name.setEnabled(false);
-            }
-            pb.setVisibility(View.GONE);
-        }
     }
 
 
     @Override
     public void onstart() {
-        startBle();
+//        startBle();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0.1f, mLocationListener);
     }
 
     @Override
@@ -285,6 +312,56 @@ public class MainActivity extends BaseActivity {
         }catch (Exception e) {
             //
         }
+        mLocationManager.removeUpdates(mLocationListener);
     }
 
+    private void updateLocation() {
+        if (mLastKnownLocation == null) {
+            return;
+        }
+        Location location = new Location(mLastKnownLocation);
+
+        if (location == null) return;
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Latitude: ").append(location.getLatitude()).append('\n')
+                .append("Longitude: ").append(location.getLongitude()).append('\n')
+                .append("Accuracy: ").append(location.getAccuracy()).append('\n')
+                .append("Fix time: ").append(location.getTime()/1000);
+        tv_status.setText(sb.toString());
+
+        if (cb_latitude.isChecked()) {et_latitude.setText(""+location.getLatitude());}
+        if (cb_longitude.isChecked()) {et_longitude.setText(""+location.getLongitude());}
+        if (cb_hori.isChecked()) {et_horizontal.setText(""+location.getAccuracy());}
+        if (cb_time.isChecked()) {et_time.setText(""+location.getTime()/1000);}
+    }
+
+    LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            mLastKnownLocation = new Location(location);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateLocation();
+                }
+            });
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    };
 }

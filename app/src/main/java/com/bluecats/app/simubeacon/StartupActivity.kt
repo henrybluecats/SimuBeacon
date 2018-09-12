@@ -17,9 +17,9 @@ class StartupActivity : AppCompatActivity() {
         setContentView(R.layout.activity_startup)
 
         bt_advertiser.setOnClickListener { view -> onClick(view) }
-        bt_scanner.setOnClickListener{ view -> onClick(view) }
-        bt_scanner2.setOnClickListener{ view -> onClick(view) }
-        bc_scanner.setOnClickListener { view -> onClick(view) }
+//        bt_scanner.setOnClickListener{ view -> onClick(view) }
+//        bt_scanner2.setOnClickListener{ view -> onClick(view) }
+//        bc_scanner.setOnClickListener { view -> onClick(view) }
     }
 
     fun onClick(view: View) {
@@ -28,15 +28,15 @@ class StartupActivity : AppCompatActivity() {
                 startActivity(Intent(this, MainActivity::class.java))
 
             }
-            bt_scanner -> {
-                startActivity(Intent(this, ScanActivity::class.java))
-            }
-            bt_scanner2 -> {
-                startActivity(Intent(this, Scan2Activity::class.java))
-            }
-            bc_scanner -> {
-                startActivity(Intent(this, BluecatsScannerActivity::class.java))
-            }
+//            bt_scanner -> {
+//                startActivity(Intent(this, ScanActivity::class.java))
+//            }
+//            bt_scanner2 -> {
+//                startActivity(Intent(this, Scan2Activity::class.java))
+//            }
+//            bc_scanner -> {
+//                startActivity(Intent(this, BluecatsScannerActivity::class.java))
+//            }
         }
 
     }
