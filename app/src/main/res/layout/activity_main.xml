@@ -21,7 +21,7 @@
             <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
+                    android:inputType="numberSigned|numberDecimal"
                     android:ems="10"
                     android:id="@+id/et_latitude" android:layout_below="@+id/tv_lattitude"
                     android:enabled="false"/>
@@ -40,7 +40,7 @@
             <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
+                    android:inputType="numberSigned|numberDecimal"
                     android:ems="10"
                     android:id="@+id/et_longitude" android:layout_below="@+id/tv_longitude"
                     android:enabled="false"/>
